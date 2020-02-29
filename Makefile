@@ -4,6 +4,8 @@ TOOLCHAIN := arm-none-eabi-
 CC := $(TOOLCHAIN)gcc
 LD := $(TOOLCHAIN)ld
 OBJCPY := $(TOOLCHAIN)objcopy
+OBJDMP := $(TOOLCHAIN)objdump
+GDB := gdb-multiarch
 SRC_DIR := src
 BUILD_DIR := build
 
@@ -11,7 +13,11 @@ BUILD_DIR := build
 all: nrf52840-blinky
 
 .PHONY: nrf52840-blinky
-nrf52840-blinky: $(BUILD_DIR)/nrf52840-blinky.bin
+nrf52840-blinky: $(BUILD_DIR)/nrf52840-blinky.bin $(BUILD_DIR)/nrf52840-blinky.dump.txt
+
+.PHONY: clean
+clean:
+	rm -rf $(BUILD_DIR)
 
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
@@ -19,10 +25,13 @@ $(BUILD_DIR):
 INCLUDES += -Iinclude
 
 LDFLAGS += -Map=$(BUILD_DIR)/output.map \
+		   --gc-sections \
 		   -T link/link.ld
 
 CFLAGS += -nostdlib \
 		  -mcpu=cortex-m4 \
+		  -ffunction-sections \
+		  -fdata-sections \
 		  $(INCLUDES) \
 		  -g \
 		  -Wall \
@@ -41,6 +50,5 @@ $(BUILD_DIR)/%.o: %.c
 $(BUILD_DIR)/%.elf: $(OBJS)
 	$(LD) -o $@ $^ $(LDFLAGS)
 
-.PHONY: clean
-clean:
-	rm -rf $(BUILD_DIR)
+$(BUILD_DIR)/%.dump.txt: $(BUILD_DIR)/%.elf
+	$(OBJDMP) -D $^ > $@
