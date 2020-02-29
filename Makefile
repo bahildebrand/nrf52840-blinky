@@ -15,6 +15,9 @@ all: nrf52840-blinky
 .PHONY: nrf52840-blinky
 nrf52840-blinky: $(BUILD_DIR)/nrf52840-blinky.bin $(BUILD_DIR)/nrf52840-blinky.dump.txt
 
+.PHONY: flash
+flash: nrf52840-blinky-flash
+
 .PHONY: clean
 clean:
 	rm -rf $(BUILD_DIR)
@@ -52,3 +55,9 @@ $(BUILD_DIR)/%.elf: $(OBJS)
 
 $(BUILD_DIR)/%.dump.txt: $(BUILD_DIR)/%.elf
 	$(OBJDMP) -D $^ > $@
+
+%-flash: $(BUILD_DIR)/%.elf
+	gdb-multiarch -nx --batch \
+	-ex 'target extended-remote /dev/ttyACM0' \
+	-x flash_blinky.scr \
+	$(BUILD_DIR)/$(*).elf
