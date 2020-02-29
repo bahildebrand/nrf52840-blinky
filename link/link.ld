@@ -6,26 +6,33 @@ SECTIONS
 {
     .text :
     {
+        . = ALIGN(4);
         KEEP(*(.vecs*))
         *(.text*)
         *(.rodata*)
-        _text_end = .;
+        . = ALIGN(4);
     } > FLASH
 
     .bss (NOLOAD) :
     {
+        . = ALIGN(4);
         _bss_start = .;
         *(COMMON)
         *(.bss*)
+        . = ALIGN(4);
         _bss_end = .;
     } > RAM
 
     .data :
     {
+        . = ALIGN(4);
         _data_start = .;
         *(.data*)
+        . = ALIGN(4);
         _data_end = .;
     } > RAM AT > FLASH
+
+    _data_lma = LOADADDR(.data);
 
     .stack (NOLOAD):
     {

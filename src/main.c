@@ -34,6 +34,11 @@ int main(void)
         return 0;
 }
 
+void unused_function(void)
+{
+
+}
+
 static void toggle_led(void)
 {
         uint32_t *set_gpio_ptr = (uint32_t *)GPIO_SET_ADDR;
